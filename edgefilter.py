@@ -14,7 +14,21 @@ if __name__ == "__main__":
     description = "Edge detection - sobel filter"
 
     parser = OptionParser(usage=usage, description=description)
-    parser.add_option("-s","--sigma", dest="sigma", help="Canny filter sigma default: %default", default=3, type='float')
+    parser.add_option("-s","--sigma", dest="sigma", 
+        help="Canny filter sigma default: %default", 
+        default=3, type='float')
+    parser.add_option("--sobel", dest="sobel",
+        help="Use sobel filter",
+        default=False, action='store_true')
+    parser.add_option("--nosobel", dest="sobel",
+        help="Don't use sobel filter [default]",
+        action='store_false')
+    parser.add_option("--canny", dest="canny",
+        help="Use canny filter [default]",
+        default=True, action='store_true')
+    parser.add_option("--nocanny", dest="canny",
+        help="Don't use canny filter",
+        action='store_false')
     (options, args) = parser.parse_args()
 
     if len(args) != 2:
@@ -25,21 +39,26 @@ if __name__ == "__main__":
     outim = volumeFromInstance(inim, args[1])
 
     # 3D Sobel filter (doesnt work always)
-    # outim.data[::] = ndimage.generic_gradient_magnitude(inim.data, ndimage.sobel)
+    if options.sobel:
+        outim.data[::] = ndimage.generic_gradient_magnitude(inim.data, ndimage.sobel)
+        options.canny = 0
 
-    # http://scipy-lectures.github.io/advanced/image_processing/auto_examples/plot_canny.html
     # 2D Canny filter
+    # http://scipy-lectures.github.io/advanced/image_processing/auto_examples/plot_canny.html
     # canny(image, sigma=1.0, low_threshold=0.1, high_threshold=0.2, mask=None)
-    for i in range(inim.sizes[0]):
-        print "SLICE: %i" % i
-        t = inim.getHyperslab((i,0,0),(1,inim.sizes[1],inim.sizes[2]))
-        t.shape = (inim.sizes[1], inim.sizes[2])
-        c = filter.canny(t, sigma=6)
-        outim.data[i::] = c
+    if options.canny:
+        for i in range(inim.sizes[0]):
+            # print "SLICE: %i" % i
+            t = inim.getHyperslab((i,0,0),(1,inim.sizes[1],inim.sizes[2]))
+            t.shape = (inim.sizes[1], inim.sizes[2])
+            c = filter.canny(t, sigma=6)
+            outim.data[i::] = c
                       
-    # write to file
-    outim.writeFile()
-    outim.closeVolume()
+    if options.canny or options.sobel:
+        outim.writeFile()
+        outim.closeVolume()
+    else:
+        print "No filter selected, no filtering performed."
     inim.closeVolume()
     
 
