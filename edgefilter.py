@@ -14,7 +14,7 @@ if __name__ == "__main__":
     description = "Edge detection - sobel filter"
 
     parser = OptionParser(usage=usage, description=description)
-
+    parser.add_option("-s","--sigma", dest="sigma", help="Canny filter sigma default: %default", default=3, type='float')
     (options, args) = parser.parse_args()
 
     if len(args) != 2:
