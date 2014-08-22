@@ -34,21 +34,19 @@ if __name__ == "__main__":
     if len(args) != 2:
         parser.error("Incorrect number of arguments")
 
-    inim = volumeFromFile(args[0], dtype='ushort') #inim.data[::]
-    #outim = volumeLikeFile(args[0], args[1])
+    inim = volumeFromFile(args[0], dtype='ushort')
     outim = volumeFromInstance(inim, args[1])
 
-    # 3D Sobel filter (doesnt work always)
+    ''' 3D Sobel filter (doesnt work always) '''
     if options.sobel:
         outim.data[::] = ndimage.generic_gradient_magnitude(inim.data, ndimage.sobel)
         options.canny = 0
 
-    # 2D Canny filter
+    ''' 2D Canny filter '''
     # http://scipy-lectures.github.io/advanced/image_processing/auto_examples/plot_canny.html
     # canny(image, sigma=1.0, low_threshold=0.1, high_threshold=0.2, mask=None)
     if options.canny:
         for i in range(inim.sizes[0]):
-            # print "SLICE: %i" % i
             t = inim.getHyperslab((i,0,0),(1,inim.sizes[1],inim.sizes[2]))
             t.shape = (inim.sizes[1], inim.sizes[2])
             c = filter.canny(t, sigma=6)
