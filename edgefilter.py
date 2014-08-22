@@ -49,7 +49,7 @@ if __name__ == "__main__":
         for i in range(inim.sizes[0]):
             t = inim.getHyperslab((i,0,0),(1,inim.sizes[1],inim.sizes[2]))
             t.shape = (inim.sizes[1], inim.sizes[2])
-            c = filter.canny(t, sigma=6)
+            c = filter.canny(t, sigma=options.sigma)
             outim.data[i::] = c
                       
     if options.canny or options.sobel:
